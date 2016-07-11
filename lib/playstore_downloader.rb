@@ -1,5 +1,6 @@
 require "playstore_downloader/version"
 require "playstore_downloader/credentials"
+require "playstore_downloader/apk"
 require "net/http"
 
 module PlaystoreDownloader
@@ -71,6 +72,10 @@ module PlaystoreDownloader
       'Accept-Encoding': '',
       Host: 'android.clients.google.com'
     }
+
+    headers.each do |key, value|
+      http.add_field key, value
+    end
 
     req.set_form_data(
       ot: apk.offer_type,
