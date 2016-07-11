@@ -1,8 +1,6 @@
 # PlaystoreDownloader
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/playstore_downloader`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Google Play Store lets you download an APK directly on your device, but sometimes you need to directly download the APK file on your PC (or other device). This gem lets you do just that, by using your credentials and tricking the Store into releasing the raw files to your device.
 
 ## Installation
 
