@@ -6,22 +6,17 @@ require "net/http"
 module PlaystoreDownloader
 
   @@auth_token ||= nil
+  AUTH_URI = 'https://android.clients.google.com/auth'
+  BASE_URI = 'https://android.clients.google.com/fdfe'
 
   module_function
-
-  def req_google
-    uri = URI 'http://www.google.it'
-    response = Net::HTTP.get uri
-
-    puts response
-  end
 
   def setup(email, password, device_id)
     @@credentials = Credentials.new email, password, device_id
   end
 
   def auth
-    uri = URI 'https://android.clients.google.com/auth'
+    uri = URI AUTH_URI
 
     req = Net::HTTP::Post.new(uri)
       
@@ -48,15 +43,14 @@ module PlaystoreDownloader
     @@auth_token = res.body[/(?<=Auth=).*/]
   end
 
-  def purchase(apk)
+  def google_play_api(apk, path)
     auth if @@auth_token.nil?
 
-    uri = URI 'https://android.clients.google.com/fdfe/purchase'
+    uri = URI BASE_URI + path
 
     http = Net::HTTP.new(uri.hostname, uri.port)
     http.use_ssl = true
 
-    req = Net::HTTP::Post.new(uri)
 
     headers = {
       Accept: 'application/xml',
@@ -77,11 +71,30 @@ module PlaystoreDownloader
       http.add_field key, value
     end
 
+    return http
+
+  end
+
+  def details(apk)
+
+  end
+
+  def purchase(apk)
+    auth if @@auth_token.nil?
+
+    details(apk) unless apk.complete?
+    
+    http = google_play_api(apk, '/purchase')
+
+    req = Net::HTTP::Post.new(BASE_URI + '/purchase')
+
     req.set_form_data(
       ot: apk.offer_type,
       doc: apk.package_id,
       vc: apk.version_code
     )
+
+    res = http.request req
 
   end
 

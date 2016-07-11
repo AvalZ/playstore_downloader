@@ -7,4 +7,8 @@ class Apk
     @offer_type = offer_type
   end
 
+  def complete?
+    @package_id.nil? && @version_code.nil? && @offer_type.nil?
+  end
+
 end
