@@ -8,7 +8,7 @@ class Apk
   end
 
   def complete?
-    @package_id.nil? && @version_code.nil? && @offer_type.nil?
+    !@package_id.nil? && !@version_code.nil? && !@offer_type.nil?
   end
 
 end
