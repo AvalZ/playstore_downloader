@@ -13,9 +13,8 @@ module PlaystoreDownloader
     puts response
   end
 
-  def setup
-    @@credentials ||= Credentials.new nil, nil, nil
-    yield(@@credentials) if block_given?
+  def setup(email, password, device_id)
+    @@credentials = Credentials.new email, password, device_id
   end
 
   def auth
