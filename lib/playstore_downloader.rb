@@ -1,7 +1,11 @@
+require "net/http"
+
+require 'playstore_parser'
+
 require "playstore_downloader/version"
 require "playstore_downloader/credentials"
 require "playstore_downloader/apk"
-require "net/http"
+
 
 module PlaystoreDownloader
 
@@ -76,12 +80,13 @@ module PlaystoreDownloader
   end
 
   def details(apk)
-
+    # TODO
+    http = google_play_api(apk, '/details')
+    
+    return apk
   end
 
   def purchase(apk)
-    auth if @@auth_token.nil?
-
     details(apk) unless apk.complete?
     
     http = google_play_api(apk, '/purchase')
