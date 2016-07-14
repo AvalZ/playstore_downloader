@@ -144,6 +144,15 @@ module PlaystoreDownloader
     res = http.request req
 
     rw = PlaystoreParser.parse(res.body)
+
+    delivery_data = rw.payload.buyResponse.purchaseStatusResponse.appDeliveryData
+
+    download_data = {
+      dl_url: delivery_data.downloadUrl,
+      dl_auth_cookie: delivery_data.downloadAuthCookie[0]
+    }
+
+
   end
 
 end
