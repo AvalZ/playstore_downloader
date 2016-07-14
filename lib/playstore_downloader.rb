@@ -1,3 +1,4 @@
+require 'openssl'
 require "net/http"
 
 require 'playstore_parser'
@@ -20,7 +21,7 @@ module PlaystoreDownloader
   end
 
   def auth
-    uri = URI AUTH_URI
+    uri = URI(AUTH_URI)
 
     req = Net::HTTP::Post.new(uri)
       
@@ -47,49 +48,75 @@ module PlaystoreDownloader
     @@auth_token = res.body[/(?<=Auth=).*/]
   end
 
-  def google_play_api(apk, path)
+  def details(apk)
     auth if @@auth_token.nil?
 
-    uri = URI BASE_URI + path
+    puts "Auth Token: " + @@auth_token
+
+    uri = URI(BASE_URI + "/details?doc=#{apk.package_id}")
+
+    puts uri
+
+
+    headers = {
+      'Accept' => 'application/xml',
+      'Accept-Language' => 'en_US',
+      'Authorization' => "GoogleLogin auth=#{@@auth_token}",
+      'X-DFE-Enabled-Experiments' => 'cl:billing.select_add_instrument_by_default',
+      'X-DFE-Unsupported-Experiments' => 'nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes',
+      'X-DFE-Device-Id' => @@credentials.device_id,
+      'X-DFE-Client-Id' => 'am-android-google',
+      'User-Agent' => 'Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)',
+      'X-DFE-SmallestScreenWidthDp' => '320',
+      'X-DFE-Filter-Level' => '3',
+      'Accept-Encoding' => '',
+      'Host' => 'android.clients.google.com'
+    }
+
+    req = Net::HTTP::Get.new(uri.to_s)
+    
+    res = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+
+
+      http = Net::HTTP.new(uri.hostname, uri.port)
+      http.use_ssl = true
+
+      headers.each do |key, value|
+        req[key] = value
+        puts "#{key}: #{value}"
+      end
+
+      http.request req
+
+    end
+
+  end
+
+  def purchase(apk)
+    auth if @@auth_token.nil?
+    
+    details(apk) unless apk.complete?
+
+    uri = URI(BASE_URI + '/purchase')
 
     http = Net::HTTP.new(uri.hostname, uri.port)
     http.use_ssl = true
 
-
     headers = {
-      Accept: 'application/xml',
-      'Accept-Language':  'en_US',
-      Authorization: "GoogleLogin auth=#{@@auth_token}",
-      'X-DFE-Enabled-Experiments': 'cl:billing.select_add_instrument_by_default',
-      'X-DFE-Unsupported-Experiments': 'nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes',
-      'X-DFE-Device-Id': @@credentials.device_id,
-      'X-DFE-Client-Id': 'am-android-google',
-      'User-Agent': 'Android-Finsky/4.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)',
-      'X-DFE-SmallestScreenWidthDp': 320,
-      'X-DFE-Filter-Level': 3,
-      'Accept-Encoding': '',
-      Host: 'android.clients.google.com'
+      'Accept' => 'application/xml',
+      'Accept-Language' => 'en_US',
+      'Authorization' => "GoogleLogin auth=#{@@auth_token}",
+      'X-DFE-Enabled-Experiments' => 'cl:billing.select_add_instrument_by_default',
+      'X-DFE-Unsupported-Experiments' => 'nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes',
+      'X-DFE-Device-Id' => @@credentials.device_id,
+      'X-DFE-Client-Id' => 'am-android-google',
+      'User-Agent' => 'Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)',
+      'X-DFE-SmallestScreenWidthDp' => '320',
+      'X-DFE-Filter-Level' => '3',
+      'Accept-Encoding' => '',
+      'Host' => 'android.clients.google.com',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     }
-
-    headers.each do |key, value|
-      http.add_field key, value
-    end
-
-    return http
-
-  end
-
-  def details(apk)
-    # TODO
-    http = google_play_api(apk, '/details')
-    
-    return apk
-  end
-
-  def purchase(apk)
-    details(apk) unless apk.complete?
-    
-    http = google_play_api(apk, '/purchase')
 
     req = Net::HTTP::Post.new(BASE_URI + '/purchase')
 
@@ -99,8 +126,13 @@ module PlaystoreDownloader
       vc: apk.version_code
     )
 
-    res = http.request req
+    headers.each do |key, value|
+      req.add_field key, value
+    end
 
+    res = http.request req
+    
+    return apk
   end
 
 end
