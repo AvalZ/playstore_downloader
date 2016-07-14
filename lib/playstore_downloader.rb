@@ -90,7 +90,18 @@ module PlaystoreDownloader
 
     end
 
+
+    rw = PlaystoreParser.parse(res.body)
+
+    doc = rw.payload.detailsResponse.docV2
+      
+    apk.version_code = doc.details.appDetails.versionCode
+    apk.offer_type = doc.offer[0].offerType
+
+    return apk
+  
   end
+
 
   def purchase(apk)
     auth if @@auth_token.nil?
@@ -131,8 +142,8 @@ module PlaystoreDownloader
     end
 
     res = http.request req
-    
-    return apk
+
+    rw = PlaystoreParser.parse(res.body)
   end
 
 end
