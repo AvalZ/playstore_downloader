@@ -62,8 +62,6 @@ module PlaystoreDownloader
       'Accept' => 'application/xml',
       'Accept-Language' => 'en_US',
       'Authorization' => "GoogleLogin auth=#{@@auth_token}",
-      'X-DFE-Enabled-Experiments' => 'cl:billing.select_add_instrument_by_default',
-      'X-DFE-Unsupported-Experiments' => 'nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes',
       'X-DFE-Device-Id' => @@credentials.device_id,
       'X-DFE-Client-Id' => 'am-android-google',
       'User-Agent' => 'Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)',
@@ -147,12 +145,44 @@ module PlaystoreDownloader
 
     delivery_data = rw.payload.buyResponse.purchaseStatusResponse.appDeliveryData
 
+    auth_cookie = delivery_data.downloadAuthCookie[0]
+
     download_data = {
       dl_url: delivery_data.downloadUrl,
-      dl_auth_cookie: delivery_data.downloadAuthCookie[0]
+      dl_auth_cookie: auth_cookie.name + "=" + auth_cookie.value
     }
 
 
+  end
+
+  def download_apk(dl_data)
+    uri = URI(dl_data[:dl_url])
+    auth_cookie = dl_data[:dl_auth_cookie]
+    Net::HTTP.start(uri.hostname, use_ssl: uri.scheme == 'https') do |http|
+      req = Net::HTTP::Get.new uri
+      req['User-Agent'] = 'AndroidDownloadManager Paros/3.2.13'
+      req['Cookie'] = auth_cookie
+
+      res = http.request req
+
+      case res
+      when Net::HTTPSuccess
+        return res
+      when Net::HTTPRedirection
+        return download_apk({dl_url: res['Location'], dl_auth_cookie: auth_cookie})
+      else
+        res.error!
+      end
+
+    end
+  end
+
+  def download(package_id)
+    apk = Apk.new(package_id, nil, nil)
+    dl_data = purchase apk
+    res = download_apk dl_data
+
+    return res.body
   end
 
 end
