@@ -51,12 +51,7 @@ module PlaystoreDownloader
   def details(apk)
     auth if @@auth_token.nil?
 
-    puts "Auth Token: " + @@auth_token
-
     uri = URI(BASE_URI + "/details?doc=#{apk.package_id}")
-
-    puts uri
-
 
     headers = {
       'Accept' => 'application/xml',
@@ -81,7 +76,6 @@ module PlaystoreDownloader
 
       headers.each do |key, value|
         req[key] = value
-        puts "#{key}: #{value}"
       end
 
       http.request req
