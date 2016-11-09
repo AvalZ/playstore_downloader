@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/playstore_downloader.svg)](https://badge.fury.io/rb/playstore_downloader)
+
 # PlaystoreDownloader
 
 Google Play Store lets you download an APK directly on your device, but sometimes you need to directly download the APK file on your PC (or other device). This gem lets you do just that, by using your credentials and tricking the Store into releasing the raw files to your device.
