@@ -52,6 +52,8 @@ module PlaystoreDownloader
     auth if @@auth_token.nil?
 
     uri = URI(BASE_URI + "/details?doc=#{apk.package_id}")
+    # TODO: get as argument
+    user_agent = 'Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)'
 
     headers = {
       'Accept' => 'application/xml',
@@ -59,7 +61,7 @@ module PlaystoreDownloader
       'Authorization' => "GoogleLogin auth=#{@@auth_token}",
       'X-DFE-Device-Id' => @@credentials.device_id,
       'X-DFE-Client-Id' => 'am-android-google',
-      'User-Agent' => 'Android-Finsky/3.7.13 (api=3,versionCode=8013013,sdk=16,device=crespo,hardware=herring,product=soju)',
+      'User-Agent' => user_agent,
       'X-DFE-SmallestScreenWidthDp' => '320',
       'X-DFE-Filter-Level' => '3',
       'Accept-Encoding' => '',

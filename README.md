@@ -21,7 +21,10 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+PlaystoreDownloader::setup "abc@email.it", "password", "device_id"
+PlaystoreDownloader::download "com.package.id"
+```
 
 ## Development
 
@@ -31,5 +34,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/playstore_downloader.
+Bug reports and pull requests are welcome on GitHub at https://github.com/AvalZ/playstore\_downloader.
 
