@@ -23,9 +23,11 @@ Or install it yourself as:
 
 ## Usage
 
-```ruby
-PlaystoreDownloader::setup "abc@email.it", "password", "device_id"
-PlaystoreDownloader::download "com.package.id"
+```
+$ irb
+> require 'playstore_downloader'
+> PlaystoreDownloader::setup "abc@email.it", "password", "device_id"
+> PlaystoreDownloader::download "com.package.id"
 ```
 
 ## Development
