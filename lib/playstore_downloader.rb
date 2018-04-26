@@ -85,7 +85,29 @@ module PlaystoreDownloader
     end
 
 
+    case res
+    when Net::HTTPSuccess
+    when Net::HTTPRedirection
+      res = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+
+
+        http = Net::HTTP.new(uri.hostname, uri.port)
+        http.use_ssl = true
+  
+        headers.each do |key, value|
+          req[key] = value
+        end
+
+        http.request req
+      end
+    else
+      res.error!
+    end
+    puts 'Raw Request'
+    puts res.body
     rw = PlaystoreParser.parse(res.body)
+    puts 'Parsed Request'
+    puts rw
 
     doc = rw.payload.detailsResponse.docV2
       

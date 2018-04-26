@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+# require 'playstore_downloader'
+
+# PlaystoreDownloader::setup ARGV[0], ARGV[1], ARGV[2]
+# PlaystoreDownloader::download ARGV[3]
+
+puts ARGV[0]
+puts ARGV[1]
+puts ARGV[2]
+puts ARGV[3]
